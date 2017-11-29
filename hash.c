@@ -15,7 +15,7 @@ unsigned long hash_key(char *str) // long long could be appropriate
 	}
 	return l;
 }
-hash_t *new_table(int size) {
+hash_t *new_hash(int size) {
 	hash_t *table=malloc(sizeof(hash_t));
 	table->mem=calloc(size,sizeof(int *));
 	table->size=size;
@@ -54,14 +54,14 @@ int *get_entry(hash_t *table,char *str)
 }
 void free_hash(hash_t *table)
 {
-	for (int i=0;i<table->size/sizeof(int *);i++)
+	for (int i=0;i<table->size;i++)
 		if (table->mem[i])
 			free(table->mem[i]);
 	free(table);
 }
 int main(int argc,char **argv)
 {
-	hash_t *table=new_table(128);
+	hash_t *table=new_hash(128);
 	char *input=malloc(100),*number=malloc(100);
 	while (strcmp(input,"quit\n")) {
 		printf("Command: ");
