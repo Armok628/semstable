@@ -8,10 +8,10 @@ typedef struct {
 } hash_t;
 unsigned long hash_key(char *str) // lazy
 {
-	unsigned long l;
+	unsigned long l=0;
 	for (char *c=str;*c;c++) {
+		l+=(*c)&63;
 		l<<=1;
-		l+=(*c)&31; // case insensitive; suits my needs
 	}
 	return l;
 }
