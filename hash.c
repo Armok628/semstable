@@ -10,8 +10,9 @@ unsigned long hash_key(char *str) // lazy
 {
 	unsigned long key=0;
 	for (char *c=str;*c;c++) {
-		key<<=2;
 		key+=*c;
+		key<<=8;
+		key/=*c;
 	}
 	return key;
 }
