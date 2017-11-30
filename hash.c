@@ -1,94 +1,114 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-typedef struct {
+typedef struct bucket_s {
 	unsigned long key;
-	void *num;
-} bucket_t; // To-do: Work this in
+	void *val;
+	//struct bucket_s *cdr;
+} bucket_t;
 typedef struct {
 	int size; // # of possible entries
 	int initsize;
-	int **mem;
-	//bucket_t **mem;
-} hash_t;
+	bucket_t **mem;
+} table_t;
 unsigned long hash_key(char *str) // lazy
 {
 	unsigned long key=0;
 	for (char *c=str;*c;c++) {
+		key+=*c;
 		key<<=8;
-		key+=*c*13;
-		key<<=8;
-		key/=*c*17;
-		key>>=2;
-		key*=*c**c*23;
-		key<<=3;
-		key-=*c+31;
+		key/=*c;
+		key+=*c;
 	}
 	//fprintf(stderr,"-- Key: %s -> %lu --\n",str,key);
 	return key;
 }
-hash_t *new_hash(int size) {
-	hash_t *table=malloc(sizeof(hash_t));
-	table->mem=calloc(size,sizeof(int *));
+bucket_t* new_bucket(unsigned long key,void *val)
+{
+	bucket_t *b=malloc(sizeof(bucket_t));
+	b->key=key;
+	b->val=val;
+	return b;
+}
+void free_bucket(bucket_t *b)
+{
+	free(b->val);
+	free(b);
+}
+table_t *new_table(int size) {
+	table_t *table=malloc(sizeof(table_t));
+	table->mem=calloc(size,sizeof(bucket_t *));
 	table->size=size;
 	table->initsize=size;
 	return table;
 }
-void set_entry(hash_t *table,char *str,int *entry)
+void free_table(table_t *table)
 {
-	int **def=&table->mem[hash_key(str)%table->size];
-	if (*def)
-		free(*def);
-	*def=entry;
+	for (int i=0;i<table->size;i++)
+		if (table->mem[i])
+			free_bucket(table->mem[i]);
+	free(table->mem);
+	free(table);
 }
-void add_entry(hash_t *table,char *str,int *entry) // set_entry but handles collisions
+bucket_t *add_bucket(table_t *table,unsigned long key,bucket_t *entry)
 {
-	int **def=&table->mem[hash_key(str)%table->size];
+	bucket_t **def=&table->mem[key%table->size];
 	if (*def) { // Hash collision. Double the memory bank and add one
 		fprintf(stderr,"-- Collision: Reallocating memory --\n");
 		table->size<<=1;
-		table->mem=realloc(table->mem,table->size*sizeof(int *));
-		add_entry(table,str,entry);
+		table->size++;
+		table->mem=realloc(table->mem,table->size*sizeof(bucket_t *));
+		return add_bucket(table,key,entry);
 	} else
 		*def=entry;
+	return *def;
 }
-int *get_entry(hash_t *table,char *str)
+bucket_t *add_entry(table_t *table,char *str,void *entry)
+{
+	unsigned long key=hash_key(str);
+	bucket_t *bucket=new_bucket(key,entry);
+	return add_bucket(table,key,bucket);
+}
+void *get_entry(table_t *table,char *str)
 {
 	unsigned long key=hash_key(str);
 	int size=table->size;
-	int **def=&table->mem[key%size];
-	if (*def)
-		return *def;
+	bucket_t **def=&table->mem[key%size];
+	if (*def&&(*def)->key==key)
+		return (*def)->val;
 	fprintf(stderr,"-- Entry not found where expected --\n");
-	while (!*def&&size>table->initsize) {
+	while (size>table->initsize&&!(*def&&(*def)->key==key)) {
 		fprintf(stderr,"-- Checking next possible address --\n");
+		size--;
 		size>>=1;
 		def=&table->mem[key%size];
 	}
 	if (!*def)
 		return NULL; // Not defined
-	fprintf(stderr,"-- Found: Relocating 0x%x --\n",*def);
-	add_entry(table,str,*def); // Give it a newer entry
+	fprintf(stderr,"-- Found: Relocating --\n");
+	bucket_t *b=add_bucket(table,key,*def); // Give it a newer entry
 	*def=NULL; // Remove the old one
-	return get_entry(table,str); // Try again
+	return b->val;
 }
-void free_hash(hash_t *table)
+void set_entry(table_t *table,char *str,void *entry) // add_entry() without collision handling
 {
-	for (int i=0;i<table->size;i++)
-		if (table->mem[i])
-			free(table->mem[i]);
-	free(table->mem);
-	free(table);
+	unsigned long key=hash_key(str);
+	bucket_t **def=&table->mem[key%table->size];
+	if (*def)
+		free_bucket(*def);
+	*def=new_bucket(key,entry);
 }
 int main(int argc,char **argv)
 {
-	hash_t *table=new_hash(1);
+	table_t *table=new_table(1);
 	char *input=calloc(100,1),*sym=malloc(100);
 	int *num=malloc(sizeof(int));
-	while (strcmp(input,"quit\n")&&strcmp(input,"\n")) {
+	for (;;) {
 		printf("Command: ");
 		fgets(input,99,stdin);
-		if (sscanf(input,"add %s %i",sym,num)==2) {
+		if (!strcmp(input,"quit\n")||(*input=='\n'))
+			break;
+		else if (sscanf(input,"add %s %i",sym,num)==2) {
 			add_entry(table,sym,num);
 			printf("Adding %s as %i\n\n",sym,*num);
 			num=malloc(sizeof(int));
@@ -97,7 +117,7 @@ int main(int argc,char **argv)
 			printf("Setting %s to %i\n\n",sym,*num);
 			num=malloc(sizeof(int));
 		} else if (sscanf(input,"get %s",sym)==1) {
-			int *ptr=get_entry(table,sym);
+			int *ptr=(int *)get_entry(table,sym);
 			if (ptr)
 				printf("%i\n\n",*ptr);
 			else
@@ -108,13 +128,13 @@ int main(int argc,char **argv)
 			printf("%i possible entries\n\n",table->size);
 		} else if (!strcmp(input,"realloc\n")) {
 			table->size+=table->size+1;
-			table->mem=realloc(table->mem,table->size*sizeof(int *));
+			table->mem=realloc(table->mem,table->size*sizeof(bucket_t *));
 		} else
-			printf("Unrecognized command\n\n");
-}
+			printf("Unrecognized command or format\n\n");
+	}
 	free(input);
 	free(sym);
 	free(num);
-	free_hash(table);
+	free_table(table);
 	return 0;
 }
