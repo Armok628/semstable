@@ -13,6 +13,7 @@ unsigned long hash_key(char *str) // lazy
 		key+=*c;
 		key<<=8;
 		key/=*c;
+		key+=*c;
 	}
 	return key;
 }
