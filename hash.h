@@ -83,7 +83,7 @@ void *get_entry(table_t *table,char *str)
 		size>>=1;
 		def=&table->mem[key%size];
 	}
-	if (size==table->initsize)
+	if (!*def||(*def)->key!=key)
 		return NULL; // Not defined
 	fprintf(stderr,"-- Found: Relocating --\n");
 	bucket_t *b=add_bucket(table,key,*def); // Give it a newer entry
