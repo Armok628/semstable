@@ -14,16 +14,10 @@ unsigned long hash_key(char *str) // lazy
 {
 	unsigned long key=0;
 	for (char *c=str;*c;c++) {
+		key+=*c;
+		key*=*c;
 		key<<=8;
-		key+=*c*13;
-		key<<=8;
-		key/=*c*17;
-		key>>=2;
-		key*=*c**c*23;
-		key<<=3;
-		key-=*c+31;
-		key<<=1;
-		key+=*c**c*37;
+		key/=*c;
 	}
 	//fprintf(stderr,"-- Key: %s -> %lu --\n",str,key);
 	return key;

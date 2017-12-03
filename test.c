@@ -78,8 +78,8 @@ int main(int argc,char **argv)
 		}
 	}
 	clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-	printf("\nSuccesses: %i\nFailures: %i\n",successes,failures);
-	printf("\nTotal value retrieval time: %lf seconds\n\n"
+	fprintf(stderr,"\nSuccesses: %i\nFailures: %i\n",successes,failures);
+	fprintf(stderr,"\nTotal value retrieval time: %lf seconds\n\n"
 			,(end.tv_sec-start.tv_sec)+(end.tv_nsec-start.tv_nsec)/1e9);
 	// Free memory
 	for (tl=testlist;tl;) {
