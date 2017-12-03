@@ -1,5 +1,5 @@
 # simplehashtest
-A (probably poor) hash table implementation I might use somewhere else
+A hash table implementation I made to use somewhere else
 
 I made this for two reasons
 * I wanted a hash table implementation to use somewhere else.
