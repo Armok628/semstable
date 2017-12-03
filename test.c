@@ -54,6 +54,8 @@ int main(int argc,char **argv)
 		}
 	}
 	// Test expectations
+	struct timespec start,end;
+	clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 	int successes=0,failures=0;
 	for (int i=0;i<tests;i++) {
 		//printf("Test iteration: %i\n",i);
@@ -75,7 +77,10 @@ int main(int argc,char **argv)
 			}
 		}
 	}
-	printf("\nSuccesses: %i\nFailures: %i\n\n",successes,failures);
+	clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+	printf("\nSuccesses: %i\nFailures: %i\n",successes,failures);
+	printf("\nTotal value retrieval time: %lf seconds\n\n"
+			,(end.tv_sec-start.tv_sec)+(end.tv_nsec-start.tv_nsec)/1e9);
 	// Free memory
 	for (tl=testlist;tl;) {
 		test_t *t=tl->test;
