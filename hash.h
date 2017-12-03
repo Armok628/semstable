@@ -4,21 +4,24 @@
 typedef struct bucket_s {
 	unsigned long key;
 	void *val;
-	//struct bucket_s *cdr;
+	struct bucket_s *cdr;
 } bucket_t;
 typedef struct {
 	int size; // # of possible entries
-	int initsize;
 	bucket_t **mem;
 } table_t;
 unsigned long hash_key(char *str) // lazy
 {
 	unsigned long key=0;
 	for (char *c=str;*c;c++) {
-		key+=*c;
 		key<<=8;
-		key/=*c;
-		key+=*c;
+		key+=*c*13;
+		key<<=8;
+		key/=*c*17;
+		key>>=2;
+		key*=*c**c*23;
+		key<<=3;
+		key-=*c+31;
 	}
 	//fprintf(stderr,"-- Key: %s -> %lu --\n",str,key);
 	return key;
@@ -28,18 +31,20 @@ bucket_t* new_bucket(unsigned long key,void *val)
 	bucket_t *b=malloc(sizeof(bucket_t));
 	b->key=key;
 	b->val=val;
+	b->cdr=NULL;
 	return b;
 }
 void free_bucket(bucket_t *b)
 {
 	free(b->val);
+	if (b->cdr)
+		free_bucket(b->cdr);
 	free(b);
 }
 table_t *new_table(int size) {
 	table_t *table=malloc(sizeof(table_t));
 	table->mem=calloc(size,sizeof(bucket_t *));
 	table->size=size;
-	table->initsize=size;
 	return table;
 }
 void free_table(table_t *table)
@@ -53,12 +58,18 @@ void free_table(table_t *table)
 bucket_t *add_bucket(table_t *table,unsigned long key,bucket_t *entry)
 {
 	bucket_t **def=&table->mem[key%table->size];
-	if (*def) { // Hash collision. Double the memory bank and add one
-		fprintf(stderr,"-- Collision: Reallocating memory --\n");
-		table->size<<=1;
-		table->size++;
-		table->mem=realloc(table->mem,table->size*sizeof(bucket_t *));
-		return add_bucket(table,key,entry);
+	if (*def) {
+		bucket_t *d=*def;
+		for (;d->cdr&&d->key!=key;d=d->cdr);
+		if (d->key==key) {
+			fprintf(stderr,"-- Key already exists in table --\n");
+			if (d->val)
+				free(d->val);
+			d->val=entry->val;
+			free(entry);
+		} else
+			d->cdr=entry;
+		def=&d;
 	} else
 		*def=entry;
 	return *def;
@@ -72,29 +83,19 @@ bucket_t *add_entry(table_t *table,char *str,void *entry)
 void *get_entry(table_t *table,char *str)
 {
 	unsigned long key=hash_key(str);
-	int size=table->size;
-	bucket_t **def=&table->mem[key%size];
-	if (*def&&(*def)->key==key)
-		return (*def)->val;
-	fprintf(stderr,"-- Entry not found where expected --\n");
-	while (size>table->initsize&&!(*def&&(*def)->key==key)) {
-		fprintf(stderr,"-- Checking next possible address --\n");
-		size--;
-		size>>=1;
-		def=&table->mem[key%size];
+	bucket_t *def=table->mem[key%table->size];
+	for (;def&&def->key!=key;def=def->cdr);
+	if (!def) {
+		fprintf(stderr,"-- Entry could not be found --\n");
+		return NULL;
 	}
-	if (!*def||(*def)->key!=key)
-		return NULL; // Not defined
-	fprintf(stderr,"-- Found: Relocating --\n");
-	bucket_t *b=add_bucket(table,key,*def); // Give it a newer entry
-	*def=NULL; // Remove the old one
-	return b->val;
+	return def->val;
 }
 void set_entry(table_t *table,char *str,void *entry) // add_entry() without collision handling
 {
 	unsigned long key=hash_key(str);
-	bucket_t **def=&table->mem[key%table->size];
-	if (*def)
-		free_bucket(*def);
-	*def=new_bucket(key,entry);
+	bucket_t *def=table->mem[key%table->size];
+	for (;def&&def->key!=key;def=def->cdr);
+	if (def)
+		def->val=entry;
 }
