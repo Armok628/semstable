@@ -22,6 +22,8 @@ unsigned long hash_key(char *str) // lazy
 		key*=*c**c*23;
 		key<<=3;
 		key-=*c+31;
+		key<<=1;
+		key+=*c**c*37;
 	}
 	//fprintf(stderr,"-- Key: %s -> %lu --\n",str,key);
 	return key;

@@ -14,7 +14,7 @@ typedef struct tests_s {
 test_t *new_test()
 {
 	test_t *t=malloc(sizeof(test_t));
-	t->str=random_word(5);
+	t->str=random_word(10);
 	t->val=rand();
 	return t;
 }
@@ -40,6 +40,7 @@ int main(int argc,char **argv)
 		test_t *t=new_test();
 		add_entry(table,t->str,intptr_to(t->val));
 		printf("Adding %s as %i\n",t->str,t->val);
+		//fprintf(stderr,"%s -> %lu\n",t->str,hash_key(t->str));
 		if (testlist) {
 			tl->cdr=malloc(sizeof(tests_t));
 			tl=tl->cdr;
