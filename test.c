@@ -34,7 +34,7 @@ int main(int argc,char **argv)
 	sscanf(argv[3],"%i",&tests);
 	srand(time(NULL));
 	table_t *table=new_table(tsize);
-	tests_t *testlist,*tl=testlist;
+	tests_t *testlist=NULL,*tl=testlist;
 	// Build expectations and add table values
 	for (int i=0;i<words;i++) {
 		test_t *t=new_test();
