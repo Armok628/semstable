@@ -36,13 +36,15 @@ int main(int argc,char **argv)
 			table_t *person=(table_t *)get_entry(book,arg1);
 			if (!person) {
 				person=new_table(10);
-				add_entry(book,strclone(arg1),person);
+				add_entry(book,arg1,person);
 			}
 			char *entry=(char *)get_entry(person,arg2);
 			if (!entry)
-				add_entry(person,strclone(arg2),strclone(arg3));
-			else
+				add_entry(person,arg2,strclone(arg3));
+			else {
+				free(entry);
 				set_entry(person,arg2,strclone(arg3));
+			}
 		} else if (sscanf(input,"get %s %s",arg1,arg2)==2) {
 			table_t *person=(table_t *)get_entry(book,arg1);
 			if (!person) {
