@@ -64,5 +64,5 @@ int main(int argc,char **argv)
 	free(arg1);
 	free(arg2);
 	free(arg3);
-	free_tabletable(book); // Bug: Strings stored in inner tables are not freed
+	free_tabletable(book);
 }
