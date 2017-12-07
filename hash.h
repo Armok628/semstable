@@ -51,8 +51,9 @@ void free_table(table_t *table)
 	free(table->mem);
 	free(table);
 }
-bucket_t *add_bucket(table_t *table,unsigned long key,bucket_t *entry)
+bucket_t *add_bucket(table_t *table,bucket_t *entry)
 {
+	unsigned long key=entry->key;
 	bucket_t **def=&table->mem[key%table->size];
 	if (*def) {
 		bucket_t *d=*def;
@@ -74,7 +75,7 @@ bucket_t *add_entry(table_t *table,char *str,void *entry)
 {
 	unsigned long key=hash_key(str);
 	bucket_t *bucket=new_bucket(key,entry);
-	return add_bucket(table,key,bucket);
+	return add_bucket(table,bucket);
 }
 void *get_entry(table_t *table,char *str)
 {

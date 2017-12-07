@@ -1,5 +1,14 @@
 .type	set_entry, @function
-set_entry: # (table_t *table,unsigned long key,void *entry)
+set_entry: # (table_t *table,char *str,void *entry)
+	# Lazy hack:
+	pushq	%rdi
+	pushq	%rdx
+	movq	%rsi, %rdi
+	call	hash_key
+	movq	%rax, %rsi
+	popq	%rdx
+	popq	%rdi
+
 	movq	%rdx, %rcx # entry
 	movq	(%rdi), %rax # table->size
 	xorq	%rdx, %rdx
