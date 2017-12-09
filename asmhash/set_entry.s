@@ -10,9 +10,9 @@ set_entry: # (table_t *table,char *str,void *entry)
 	popq	%rdi
 
 	movq	%rdx, %rcx # entry
-	movq	(%rdi), %rax # table->size
+	movq	%rsi, %rax # table->size
 	xorq	%rdx, %rdx
-	divq	%rsi # rdx=key%table->size
+	divq	(%rdi) # rdx=key%table->size
 	movq	8(%rdi), %rdi # mem
 	movq	(%rdi,%rdx,8), %rax # bucket_t *def=mem[rdx]
 	cmpq	$0, %rax

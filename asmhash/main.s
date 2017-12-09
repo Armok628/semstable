@@ -83,6 +83,11 @@ main:
 	movq	%r13, %rsi
 	movq	%r14, %rdx
 	call	set_entry
+	cmpq	$0, %rax
+	jnz	.main_loop
+	leaq	fs_undef(%rip), %rdi
+	movq	%r13, %rsi
+	call	printf@plt
 	jmp	.main_loop
 .main_get:
 	movq	%r15, %rdi

@@ -1,9 +1,9 @@
 .type	add_bucket, @function
 add_bucket: # (table_t *table, bucket_t *bucket)
 	pushq	%rbx
-	movq	(%rdi), %rax # size
+	movq	(%rsi), %rax # bucket->key
 	xorq	%rdx, %rdx
-	divq	(%rsi) # bucket->key
+	divq	(%rdi) # size
 	movq	8(%rdi), %rdi # mem
 	leaq	(%rdi,%rdx,8), %rbx # bucket_t **def2
 	movq	(%rbx), %rcx # bucket_t *def1
