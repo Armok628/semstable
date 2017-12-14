@@ -73,9 +73,16 @@ main:
 	je	.main_get
 	jmp	.main_loop
 .main_add:
+	movq	%r14, %rdi
+	call	strlen@plt
+	movq	%rax, %rdi
+	call	malloc@plt
+	movq	%rax, %rdi
+	movq	%r14, %rsi
+	call	strcpy@plt
+	movq	%rax, %rdx
 	movq	%r15, %rdi
 	movq	%r13, %rsi
-	movq	%r14, %rdx
 	call	add_entry
 	jmp	.main_loop
 .main_set:
