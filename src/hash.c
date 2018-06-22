@@ -8,7 +8,6 @@ unsigned long hash_key(char *str)
 		key<<=8;
 		key/=*c;
 	}
-	//fprintf(stderr,"-- Key: %s -> %lu --\n",str,key);
 	return key;
 }
 bucket_t* new_bucket(unsigned long key,void *val)
@@ -50,8 +49,7 @@ bucket_t *add_bucket(table_t *table,bucket_t *entry)
 	if (*def) {
 		bucket_t *d=*def;
 		for (;d->cdr&&d->key!=key;d=d->cdr);
-		if (d->key==key) {
-			//fprintf(stderr,"-- Key already exists in table --\n");
+		if (d->key==key) { // Key already exists
 			if (d->val&&table->destructor)
 				table->destructor(d->val);
 			d->val=entry->val;
@@ -74,10 +72,8 @@ void *get_entry(table_t *table,char *str)
 	unsigned long key=hash_key(str);
 	bucket_t *def=table->mem[key%table->size];
 	for (;def&&def->key!=key;def=def->cdr);
-	if (!def) {
-		fprintf(stderr,"-- Entry could not be found --\n");
+	if (!def) // Entry not found
 		return NULL;
-	}
 	return def->val;
 }
 void set_entry(table_t *table,char *str,void *entry) // add_entry() without collision handling

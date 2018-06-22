@@ -17,14 +17,27 @@ Only the retrieval phase is timed.
 
 Run without arguments to manually test it, using the following commands:
 
-Command | Action
-`key s` | Print the hash key of "s"
-`add s n` | Add value "n" to entry "s"
+Command   | Action
+---       | ---
+`key s`   | Print the hash key of "s"
+`add s n` | Add value "n" to entry "s", or set to "n" if already present.
 `set s n` | Set entry "s" to "n". Won't work if not `add`ed.
-`get s` | Get the value of the entry for "s"
+`get s`   | Get the value of the entry for "s"
 
-On my machine, the retrieval phase of running `./a.out 1000 10000 100` takes 0.4 seconds.
+On my machine, the retrieval phase of `./a.out 1000 10000 100` takes 0.4 seconds.
 
 ### Library Usage
 
-*(to-do)*
+I'm writing this mostly as a reminder to myself when I use it later.
+
+Values are stored as `void *`, but with typecasting you can store anything of the same width.
+
+Function                        | Notes
+---                             | ---
+`new_table(size,destructor)`    | The destructor provided is used when destroying table values. Use `NULL` to do nothing instead.
+`add_entry(table,string,value)` | If an entry is already present, it will destroy the old value and assign the new one.
+`get_entry(table,string)`       | This function returns null when no entry is found.
+`set_entry(table,string,value)` | Does nothing when no entry is found. This function can be substituted by `add_entry`.
+`free_table(table)`             | Destroys the table's memory, and destroys all stored values using the destructor.
+
+See test.c, past `NOT_ENOUGH_ARGS:` for an example of storing `long`s as values instead of malloc'd blocks.
