@@ -1,16 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-typedef struct bucket_s {
-	unsigned long key;
-	void *val;
-	struct bucket_s *cdr;
-} bucket_t;
-typedef struct {
-	int size; // # of possible entries
-	bucket_t **mem;
-} table_t;
-unsigned long hash_key(char *str) // lazy
+#include "hash.h"
+unsigned long hash_key(char *str)
 {
 	unsigned long key=0;
 	for (char *c=str;*c;c++) {
@@ -30,24 +19,27 @@ bucket_t* new_bucket(unsigned long key,void *val)
 	b->cdr=NULL;
 	return b;
 }
-void free_bucket(bucket_t *b)
+void free_buckets(bucket_t *b,void (*d)(void *))
 {
-	free(b->val);
+	if (d)
+		d(b->val);
 	if (b->cdr)
-		free_bucket(b->cdr);
+		free_buckets(b->cdr,d);
 	free(b);
 }
-table_t *new_table(int size) {
+table_t *new_table(int size,void (*d)(void *))
+{
 	table_t *table=malloc(sizeof(table_t));
 	table->mem=calloc(size,sizeof(bucket_t *));
 	table->size=size;
+	table->destructor=d;
 	return table;
 }
 void free_table(table_t *table)
 {
 	for (int i=0;i<table->size;i++)
 		if (table->mem[i])
-			free_bucket(table->mem[i]);
+			free_buckets(table->mem[i],table->destructor);
 	free(table->mem);
 	free(table);
 }
@@ -59,9 +51,9 @@ bucket_t *add_bucket(table_t *table,bucket_t *entry)
 		bucket_t *d=*def;
 		for (;d->cdr&&d->key!=key;d=d->cdr);
 		if (d->key==key) {
-			fprintf(stderr,"-- Key already exists in table --\n");
-			if (d->val)
-				free(d->val);
+			//fprintf(stderr,"-- Key already exists in table --\n");
+			if (d->val&&table->destructor)
+				table->destructor(d->val);
 			d->val=entry->val;
 			free(entry);
 		} else
@@ -93,6 +85,9 @@ void set_entry(table_t *table,char *str,void *entry) // add_entry() without coll
 	unsigned long key=hash_key(str);
 	bucket_t *def=table->mem[key%table->size];
 	for (;def&&def->key!=key;def=def->cdr);
-	if (def)
+	if (def) {
+		if (table->destructor)
+			table->destructor(def->val);
 		def->val=entry;
+	}
 }

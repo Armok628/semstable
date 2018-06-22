@@ -1,3 +1,8 @@
+// Lazy header format, sorry.
+// This file is not intended to be used outside of the test program anyway.
+char *random_word(int);
+#ifndef RANDWORD_H
+#define RANDWORD_H
 #include <stdlib.h>
 #include <string.h>
 static char *consonants[33]={
@@ -24,3 +29,4 @@ char *random_word(int length)
 	word=realloc(word,strlen(word)+1);
 	return word;
 }
+#endif

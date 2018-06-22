@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "hash.h"
+#include "src/hash.h"
 char *strclone(char *src)
 {
 	char *dest=calloc(strlen(src)+1,1);

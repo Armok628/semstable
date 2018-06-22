@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "hash.h"
-#include "randword.h"
+#include "src/hash.h"
+#include "src/randword.h"
+unsigned long hash_key(char *); // Not ordinarily accessible outside hash.c
 typedef struct {
 	char *str;
 	int val;
@@ -33,7 +34,7 @@ int main(int argc,char **argv)
 	sscanf(argv[2],"%i",&words);
 	sscanf(argv[3],"%i",&tests);
 	srand(time(NULL));
-	table_t *table=new_table(tsize);
+	table_t *table=new_table(tsize,&free);
 	tests_t *testlist=NULL,*tl=testlist;
 	// Build expectations and add table values
 	for (int i=0;i<words;i++) {
@@ -93,29 +94,27 @@ int main(int argc,char **argv)
 	free_table(table);
 	return 0;
 NOT_ENOUGH_ARGS:
-	table=new_table(128);
+	table=new_table(128,NULL);
 	if (argc<2) {
-		char *input=calloc(100,1),*sym=malloc(100);
-		int *num=malloc(sizeof(int));
+		char input[100],sym[100];
+		long num;
 		for (;;) {
 			printf("Command: ");
 			fgets(input,99,stdin);
 			if (!strcmp(input,"quit\n")||(*input=='\n'))
 				break;
-			else if (sscanf(input,"add %s %i",sym,num)==2) {
-				add_entry(table,sym,num);
-				printf("Adding %s as %i\n\n",sym,*num);
-				num=malloc(sizeof(int));
-			} else if (sscanf(input,"set %s %i",sym,num)==2) {
-				set_entry(table,sym,num);
-				printf("Setting %s to %i\n\n",sym,*num);
-				num=malloc(sizeof(int));
+			else if (sscanf(input,"add %s %ld",sym,&num)==2) {
+				printf("Adding %s as %ld\n\n",sym,num);
+				add_entry(table,sym,(void *)num);
+			} else if (sscanf(input,"set %s %ld",sym,&num)==2) {
+				printf("Setting %s to %ld\n\n",sym,num);
+				set_entry(table,sym,(void *)num);
 			} else if (sscanf(input,"get %s",sym)==1) {
-				int *ptr=(int *)get_entry(table,sym);
-				if (ptr)
-					printf("%i\n\n",*ptr);
+				long n=(long)get_entry(table,sym);
+				if (n)
+					printf("%ld\n\n",n);
 				else
-					printf("%s is not defined\n\n",sym);
+					printf("%s is not defined or is zero\n\n",sym);
 			} else if (sscanf(input,"key %s",sym)==1) {
 				printf("%s -> %lu\n\n",sym,hash_key(sym));
 			} else if (!strcmp(input,"realloc\n")) {
@@ -124,9 +123,6 @@ NOT_ENOUGH_ARGS:
 			} else
 				printf("Unrecognized command or format\n\n");
 		}
-		free(input);
-		free(sym);
-		free(num);
 		free_table(table);
 	}
 	return 0;
