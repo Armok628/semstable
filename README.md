@@ -32,12 +32,12 @@ I'm writing this mostly as a reminder to myself when I use it later.
 
 Values are stored as `void *`, but with typecasting you can store anything of the same width.
 
-Function                        | Notes
----                             | ---
-`new_table(size,destructor)`    | The destructor provided is used when destroying table values. Use `NULL` to do nothing instead.
-`add_entry(table,string,value)` | If an entry is already present, it will destroy the old value and assign the new one.
-`get_entry(table,string)`       | This function returns null when no entry is found.
-`set_entry(table,string,value)` | Does nothing when no entry is found. This function can be substituted by `add_entry`.
-`free_table(table)`             | Destroys the table's memory, and destroys all stored values using the destructor.
+Function                                             | Notes
+---                                                  | ---
+`new_table(int size,void (*destructor)(void *))`     | "Size" represents number of buckets. "Destructor" is a function pointer used to destroy values.
+`add_entry(table_t *table,char *string,void *value)` | If an entry is already present, it will destroy the old value and assign the new one.
+`set_entry(table_t *table,char *string,void *value)` | Does nothing when no entry is found. This function can be substituted by `add_entry` if the entry's existence is uncertain.
+`void *get_entry(table_t *table,char *string)`       | Returns null when no entry is found.
+`free_table(table_t *table)`                         | Destroys the table's memory and all stored values.
 
-See test.c, past `NOT_ENOUGH_ARGS:` for an example of storing `long`s as values instead of malloc'd blocks.
+See test.c, past `NOT_ENOUGH_ARGS` for an example of storing `long`s as values instead of malloc'd blocks.
