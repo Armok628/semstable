@@ -10,13 +10,12 @@ typedef struct bucket_s {
 } bucket_t;
 typedef struct {
 	int size; // # of possible entries
-	bucket_t **mem;
+	bucket_t **pool;
 	void (*destructor)(void *);
 } table_t;
 
 table_t *new_table(int,void (*)(void *));
 void free_table(table_t *);
-bucket_t *add_entry(table_t *,char *,void *);
-void *get_entry(table_t *,char *);
-void set_entry(table_t *,char *,void *);
+void insert(table_t *,char *,void *);
+void *lookup(table_t *,char *);
 #endif

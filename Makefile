@@ -1,2 +1,5 @@
+CC=clang
+CFLAGS=-s -Os -pedantic
+
 hashtest: test.c src/*
-	cc test.c src/*.c
+	$(CC) test.c src/*.c $(CFLAGS)

@@ -10,7 +10,7 @@ unsigned long hash_key(char *str)
 	}
 	return key;
 }
-bucket_t* new_bucket(unsigned long key,void *val)
+bucket_t *new_bucket(unsigned long key,void *val)
 {
 	bucket_t *b=malloc(sizeof(bucket_t));
 	b->key=key;
@@ -29,61 +29,45 @@ void free_buckets(bucket_t *b,void (*d)(void *))
 table_t *new_table(int size,void (*d)(void *))
 {
 	table_t *table=malloc(sizeof(table_t));
-	table->mem=calloc(size,sizeof(bucket_t *));
+	table->pool=calloc(size,sizeof(bucket_t *));
 	table->size=size;
 	table->destructor=d;
 	return table;
 }
 void free_table(table_t *table)
 {
-	for (int i=0;i<table->size;i++)
-		if (table->mem[i])
-			free_buckets(table->mem[i],table->destructor);
-	free(table->mem);
+	for (int i=0;i<table->size;i++) // Check all locations
+		if (table->pool[i])
+			free_buckets(table->pool[i],table->destructor);
+	free(table->pool);
 	free(table);
 }
-bucket_t *add_bucket(table_t *table,bucket_t *entry)
+void insert(table_t *table,char *str,void *val)
 {
-	unsigned long key=entry->key;
-	bucket_t **def=&table->mem[key%table->size];
-	if (*def) {
-		bucket_t *d=*def;
-		for (;d->cdr&&d->key!=key;d=d->cdr);
-		if (d->key==key) { // Key already exists
-			if (d->val&&table->destructor)
-				table->destructor(d->val);
-			d->val=entry->val;
+	unsigned long key=hash_key(str);
+	bucket_t *entry=new_bucket(key,val);
+	bucket_t **loc=&table->pool[key%table->size]; // : Bucket location in pool
+	if (*loc) { // Bucket(s) already in location
+		bucket_t *b=*loc;
+		while (b->cdr&&b->key!=key) // Look for identical bucket or end
+			b=b->cdr;
+		if (b->key==key) { // Found identical bucket
+			if (b->val&&table->destructor)
+				table->destructor(b->val);
+			b->val=entry->val;
 			free(entry);
-		} else
-			d->cdr=entry;
-		def=&d;
-	} else
-		*def=entry;
-	return *def;
+		} else // Found end
+			b->cdr=entry;
+	} else // No buckets at location
+		*loc=entry;
 }
-bucket_t *add_entry(table_t *table,char *str,void *entry)
+void *lookup(table_t *table,char *str)
 {
 	unsigned long key=hash_key(str);
-	bucket_t *bucket=new_bucket(key,entry);
-	return add_bucket(table,bucket);
-}
-void *get_entry(table_t *table,char *str)
-{
-	unsigned long key=hash_key(str);
-	bucket_t *def=table->mem[key%table->size];
-	for (;def&&def->key!=key;def=def->cdr);
-	if (!def) // Entry not found
+	bucket_t *def=table->pool[key%table->size];
+	while (def&&def->key!=key) // Look for identical bucket or end
+		def=def->cdr;
+	if (!def) // Found end
 		return NULL;
 	return def->val;
-}
-void set_entry(table_t *table,char *str,void *entry) // add_entry() without collision handling
-{
-	unsigned long key=hash_key(str);
-	bucket_t *def=table->mem[key%table->size];
-	for (;def&&def->key!=key;def=def->cdr);
-	if (def) {
-		if (table->destructor)
-			table->destructor(def->val);
-		def->val=entry;
-	}
 }

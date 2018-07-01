@@ -20,8 +20,7 @@ Run without arguments to manually test it, using the following commands:
 Command   | Action
 ---       | ---
 `key s`   | Print the hash key of "s"
-`add s n` | Add value "n" to entry "s", or set to "n" if already present.
-`set s n` | Set entry "s" to "n". Won't work if not `add`ed.
+`set s n` | Set "s" to "n", adding the entry if undefined
 `get s`   | Get the value of the entry for "s"
 
 On my machine, the retrieval phase of `./a.out 1000 10000 100` takes 0.4 seconds.
@@ -32,12 +31,13 @@ I'm writing this mostly as a reminder to myself when I use it later.
 
 Values are stored as `void *`, but with typecasting you can store anything of the same width.
 
-Function                                             | Notes
----                                                  | ---
-`new_table(int size,void (*destructor)(void *))`     | "Size" represents number of buckets. "Destructor" is a function pointer used to destroy values.
-`add_entry(table_t *table,char *string,void *value)` | If an entry is already present, it will destroy the old value and assign the new one.
-`set_entry(table_t *table,char *string,void *value)` | Does nothing when no entry is found. This function can be substituted by `add_entry` if the entry's existence is uncertain.
-`void *get_entry(table_t *table,char *string)`       | Returns null when no entry is found.
-`free_table(table_t *table)`                         | Destroys the table's memory and all stored values.
+Function                     | Notes
+---                          | ---
+`new_table(size,destructor)` | "Size" represents number of buckets. "Destructor" is a function pointer used to destroy stored values.
+`insert(table,string,value)` | If an entry is already present, it will destroy the old value and assign the new one.
+`void *lookup(table,string)` | Returns null when no entry is found.
+`free_table(table)`          | Destroys the table's memory and all stored values.
 
 See test.c, past `NOT_ENOUGH_ARGS` for an example of storing `long`s as values instead of malloc'd blocks.
+
+As for storing pointers to multiple types, it's easy enough to implement your own variable type system with `enum` and `union`; I won't explain it here.

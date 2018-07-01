@@ -40,7 +40,7 @@ int main(int argc,char **argv)
 	// Build expectations and add table values
 	for (int i=0;i<words;i++) {
 		test_t *t=new_test();
-		add_entry(table,t->str,intptr_to(t->val));
+		insert(table,t->str,intptr_to(t->val));
 		printf("Adding %s as %i\n",t->str,t->val);
 		//fprintf(stderr,"%s -> %lu\n",t->str,hash_key(t->str));
 		if (testlist) {
@@ -63,9 +63,9 @@ int main(int argc,char **argv)
 		for (tl=testlist;tl;tl=tl->cdr) {
 			test_t *t=tl->test;
 			//printf("Test: Getting entry for %s\n",t->str);
-			int *ptr=(int *)get_entry(table,t->str);
+			int *ptr=(int *)lookup(table,t->str);
 			if (!ptr) {
-				printf("Failure: get_entry() returned null\n");
+				printf("Failure: lookup() returned null\n");
 				failures++;
 				continue;
 			}
@@ -80,7 +80,7 @@ int main(int argc,char **argv)
 	}
 	fprintf(stderr,"\nSuccesses: %i\nFailures: %i\n",successes,failures);
 	fprintf(stderr,"\nTotal value retrieval time: %lf seconds\n\n",read_timer());
-	for (tl=testlist;tl;) { // Free test memory
+	for (tl=testlist;tl;) { // Free test poolory
 		test_t *t=tl->test;
 		free(t->str);
 		free(t);
@@ -100,23 +100,20 @@ NOT_ENOUGH_ARGS:
 			fgets(input,99,stdin);
 			if (!strcmp(input,"quit\n")||(*input=='\n'))
 				break;
-			else if (sscanf(input,"add %s %ld",sym,&num)==2) {
-				printf("Adding %s as %ld\n\n",sym,num);
-				add_entry(table,sym,(void *)num);
-			} else if (sscanf(input,"set %s %ld",sym,&num)==2) {
+			else if (sscanf(input,"set %s %ld",sym,&num)==2) {
 				printf("Setting %s to %ld\n\n",sym,num);
-				set_entry(table,sym,(void *)num);
+				insert(table,sym,(void *)num);
 			} else if (sscanf(input,"get %s",sym)==1) {
-				long n=(long)get_entry(table,sym);
+				long n=(long)lookup(table,sym);
 				if (n)
 					printf("%ld\n\n",n);
 				else
-					printf("%s is not defined or is zero\n\n",sym);
+					printf("%s is undefined or zero\n\n",sym);
 			} else if (sscanf(input,"key %s",sym)==1) {
 				printf("%s -> %lu\n\n",sym,hash_key(sym));
 			} else if (!strcmp(input,"realloc\n")) {
 				table->size+=table->size+1;
-				table->mem=realloc(table->mem,table->size*sizeof(bucket_t *));
+				table->pool=realloc(table->pool,table->size*sizeof(bucket_t *));
 			} else
 				printf("Unrecognized command or format\n\n");
 		}
