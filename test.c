@@ -5,19 +5,17 @@
 #include "src/timer.h"
 #include "src/randword.h"
 unsigned long hash_key(char *); // Not ordinarily accessible outside hash.c
-typedef struct {
+typedef struct test_s {
 	char *str;
 	int val;
+	struct test_s *cdr;
 } test_t;
-typedef struct tests_s {
-	test_t *test;
-	struct tests_s *cdr;
-} tests_t;
 test_t *new_test()
 {
 	test_t *t=malloc(sizeof(test_t));
 	t->str=random_word(10);
 	t->val=rand();
+	t->cdr=NULL;
 	return t;
 }
 int *intptr_to(int i)
@@ -36,57 +34,45 @@ int main(int argc,char **argv)
 	sscanf(argv[3],"%i",&tests);
 	srand(time(NULL));
 	table_t *table=new_table(tsize,&free);
-	tests_t *testlist=NULL,*tl=testlist;
+	test_t *testlist=new_test(); // Make first test
+	test_t *test=testlist;
+	insert(table,test->str,intptr_to(test->val));
 	// Build expectations and add table values
-	for (int i=0;i<words;i++) {
+	for (int i=1;i<words;i++) {
 		test_t *t=new_test();
 		insert(table,t->str,intptr_to(t->val));
 		printf("Adding %s as %i\n",t->str,t->val);
 		//fprintf(stderr,"%s -> %lu\n",t->str,hash_key(t->str));
-		if (testlist) {
-			tl->cdr=malloc(sizeof(tests_t));
-			tl=tl->cdr;
-			tl->test=t;
-			tl->cdr=NULL;
-		} else { // Lazy hack
-			testlist=malloc(sizeof(tests_t));
-			testlist->test=t;
-			testlist->cdr=NULL;
-			tl=testlist;
-		}
+		test->cdr=t;
+		test=t;
 	}
 	// Test expectations
 	start_timer();
 	int successes=0,failures=0;
 	for (int i=0;i<tests;i++) {
 		//printf("Test iteration: %i\n",i);
-		for (tl=testlist;tl;tl=tl->cdr) {
-			test_t *t=tl->test;
+		for (test=testlist;test;test=test->cdr) {
 			//printf("Test: Getting entry for %s\n",t->str);
-			int *ptr=(int *)lookup(table,t->str);
+			int *ptr=(int *)lookup(table,test->str);
 			if (!ptr) {
-				printf("Failure: lookup() returned null\n");
+				printf("Failure: lookup returned null\n");
 				failures++;
-				continue;
-			}
-			if (*ptr==t->val) {
+			} else if (*ptr==test->val) {
 				//printf("Success!\n");
 				successes++;
 			} else {
-				printf("Failure: Wrong value for %s\n",t->str);
+				printf("Failure: Wrong value for %s\n",test->str);
 				failures++;
 			}
 		}
 	}
 	fprintf(stderr,"\nSuccesses: %i\nFailures: %i\n",successes,failures);
 	fprintf(stderr,"\nTotal value retrieval time: %lf seconds\n\n",read_timer());
-	for (tl=testlist;tl;) { // Free test poolory
-		test_t *t=tl->test;
+	for (test=testlist;test;) { // Free test memory
+		test_t *t=test;
 		free(t->str);
+		test=t->cdr;
 		free(t);
-		tests_t *f=tl;
-		tl=tl->cdr;
-		free(f);
 	}
 	free_table(table); // Free table and entries
 	return 0;
