@@ -80,8 +80,7 @@ int main(int argc,char **argv)
 	}
 	fprintf(stderr,"\nSuccesses: %i\nFailures: %i\n",successes,failures);
 	fprintf(stderr,"\nTotal value retrieval time: %lf seconds\n\n",read_timer());
-	// Free memory
-	for (tl=testlist;tl;) {
+	for (tl=testlist;tl;) { // Free test memory
 		test_t *t=tl->test;
 		free(t->str);
 		free(t);
@@ -89,7 +88,7 @@ int main(int argc,char **argv)
 		tl=tl->cdr;
 		free(f);
 	}
-	free_table(table);
+	free_table(table); // Free table and entries
 	return 0;
 NOT_ENOUGH_ARGS:
 	table=new_table(128,NULL);
