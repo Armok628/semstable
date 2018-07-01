@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "src/hash.h"
+#include "src/timer.h"
 #include "src/randword.h"
 unsigned long hash_key(char *); // Not ordinarily accessible outside hash.c
 typedef struct {
@@ -55,8 +56,7 @@ int main(int argc,char **argv)
 		}
 	}
 	// Test expectations
-	struct timespec start,end;
-	clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+	start_timer();
 	int successes=0,failures=0;
 	for (int i=0;i<tests;i++) {
 		//printf("Test iteration: %i\n",i);
@@ -78,10 +78,8 @@ int main(int argc,char **argv)
 			}
 		}
 	}
-	clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 	fprintf(stderr,"\nSuccesses: %i\nFailures: %i\n",successes,failures);
-	fprintf(stderr,"\nTotal value retrieval time: %lf seconds\n\n"
-			,(end.tv_sec-start.tv_sec)+(end.tv_nsec-start.tv_nsec)/1e9);
+	fprintf(stderr,"\nTotal value retrieval time: %lf seconds\n\n",read_timer());
 	// Free memory
 	for (tl=testlist;tl;) {
 		test_t *t=tl->test;
