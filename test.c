@@ -93,27 +93,27 @@ int main(int argc,char **argv)
 NOT_ENOUGH_ARGS:
 	table=new_table(128,NULL);
 	if (argc<2) {
-		char input[100],sym[100];
+		char input[100],str[100];
 		long num;
 		for (;;) {
 			printf("Command: ");
 			fgets(input,99,stdin);
 			if (!strcmp(input,"quit\n")||(*input=='\n'))
 				break;
-			else if (sscanf(input,"set %s %ld",sym,&num)==2) {
-				printf("Setting %s to %ld\n\n",sym,num);
-				insert(table,sym,(void *)num);
-			} else if (sscanf(input,"get %s",sym)==1) {
-				long n=(long)lookup(table,sym);
+			else if (sscanf(input,"insert %s %ld",str,&num)==2) {
+				printf("Inserting %s as %ld\n\n",str,num);
+				insert(table,str,(void *)num);
+			} else if (sscanf(input,"lookup %s",str)==1) {
+				long n=(long)lookup(table,str);
 				if (n)
 					printf("%ld\n\n",n);
 				else
-					printf("%s is undefined or zero\n\n",sym);
-			} else if (sscanf(input,"key %s",sym)==1) {
-				printf("%s -> %lu\n\n",sym,hash_key(sym));
-			} else if (!strcmp(input,"realloc\n")) {
-				table->size+=table->size+1;
-				table->pool=realloc(table->pool,table->size*sizeof(bucket_t *));
+					printf("%s is undefined or zero\n\n",str);
+			} else if (sscanf(input,"expunge %s",str)==1) {
+				printf("Expunging %s\n\n",str);
+				expunge(table,str);
+			} else if (sscanf(input,"hash_key %s",str)==1) {
+				printf("%s -> %lu\n\n",str,hash_key(str));
 			} else
 				printf("Unrecognized command or format\n\n");
 		}

@@ -18,13 +18,16 @@ bucket_t *new_bucket(unsigned long key,void *val)
 	b->cdr=NULL;
 	return b;
 }
-void free_buckets(bucket_t *b,void (*d)(void *))
+void free_location(bucket_t *b,void (*d)(void *))
 {
-	if (d)
-		d(b->val);
-	if (b->cdr)
-		free_buckets(b->cdr,d);
-	free(b);
+	bucket_t *t;
+	while (b) {
+		t=b->cdr;
+		if (d)
+			d(b->val);
+		free(b);
+		b=t;
+	}
 }
 table_t *new_table(int size,void (*d)(void *))
 {
@@ -38,7 +41,7 @@ void free_table(table_t *table)
 {
 	for (int i=0;i<table->size;i++) // Check all locations
 		if (table->pool[i])
-			free_buckets(table->pool[i],table->destructor);
+			free_location(table->pool[i],table->destructor);
 	free(table->pool);
 	free(table);
 }
@@ -52,7 +55,7 @@ void insert(table_t *table,char *str,void *val)
 		while (b->cdr&&b->key!=key) // Look for identical bucket or end
 			b=b->cdr;
 		if (b->key==key) { // Found identical bucket
-			if (b->val&&table->destructor)
+			if (table->destructor)
 				table->destructor(b->val);
 			b->val=entry->val;
 			free(entry);
@@ -64,10 +67,28 @@ void insert(table_t *table,char *str,void *val)
 void *lookup(table_t *table,char *str)
 {
 	unsigned long key=hash_key(str);
-	bucket_t *def=table->pool[key%table->size];
-	while (def&&def->key!=key) // Look for identical bucket or end
-		def=def->cdr;
-	if (!def) // Found end
+	bucket_t *b=table->pool[key%table->size]; // : Bucket in pool
+	while (b&&b->key!=key) // Look for identical bucket or end
+		b=b->cdr;
+	if (!b) // Found end
 		return NULL;
-	return def->val;
+	return b->val;
+}
+void expunge(table_t *table,char *str)
+{
+	unsigned long key=hash_key(str);
+	bucket_t *p=NULL,*b=table->pool[key%table->size];
+	while (b&&b->key!=key) { // Look for entry
+		p=b; // Remember previous node
+		b=b->cdr;
+	}
+	if (!b) // Entry not found
+		return;
+	if (!p) // No previous node
+		table->pool[key%table->size]=NULL;
+	else
+		p->cdr=b->cdr;
+	if (table->destructor)
+		table->destructor(b->val);
+	free(b);
 }
