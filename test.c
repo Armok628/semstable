@@ -4,6 +4,7 @@
 #include "src/hash.h"
 #include "src/timer.h"
 #include "src/randword.h"
+typedef enum {false,true} bool;
 unsigned long hash_key(char *); // Not ordinarily accessible outside hash.c
 typedef struct test_s {
 	char *str;
@@ -48,7 +49,8 @@ int main(int argc,char **argv)
 	if (argc<4)
 		goto NOT_ENOUGH_ARGS;
 	// Scan arguments
-	int tsize=0,words=0,tests=0,dump=0,silent=0,expunge_data=0;
+	int tsize=0,words=0,tests=0;
+	bool dump=false,time_only=false,m_expunge=false,no_adds=false;
 	unsigned int seed=time(NULL);
 	sscanf(argv[1],"%d",&tsize);
 	sscanf(argv[2],"%d",&words);
@@ -59,11 +61,13 @@ int main(int argc,char **argv)
 		sscanf(argv[i],"tests=%d",&tests);
 		sscanf(argv[i],"seed=%u",&seed);
 		if (!strcmp(argv[i],"--dump"))
-			dump=1;
-		if (!strcmp(argv[i],"--silent"))
-			silent=1;
+			dump=true;
+		if (!strcmp(argv[i],"--time_only"))
+			time_only=true;
 		if (!strcmp(argv[i],"--expunge"))
-			expunge_data=1;
+			m_expunge=true;
+		if (!strcmp(argv[i],"--no_adds"))
+			no_adds=true;
 	}
 	// Initialize table and test variables
 	srand(seed);
@@ -74,7 +78,7 @@ int main(int argc,char **argv)
 	// Build expectations and add table values
 	for (int i=1;i<words;i++) {
 		test_t *t=new_test();
-		if (!silent)
+		if (!time_only&&!no_adds)
 			printf("Adding %s as %d\n",t->str,t->val);
 		insert(table,t->str,intptr_to(t->val));
 		//printf("%s -> %lu\n",test->str,hash_key(test->str));
@@ -106,24 +110,25 @@ int main(int argc,char **argv)
 		}
 	}
 	// Print report
-	if (!silent) {
+	if (!time_only) {
 		printf("\nSuccesses: %d\nDuplicates: %d\nFailures: %d\n",successes,duplicates,failures);
 		printf("\nTotal value retrieval time: %lf seconds\n\n",read_timer());
-		if (dump)
-			locdump(table);
 	} else
 		printf("%lf",read_timer());
+	if (dump)
+		locdump(table);
 	// Manually expunge values if requested
-	if (expunge_data) {
+	if (m_expunge) {
 		start_timer();
 		for (test=testlist;test;test=test->cdr)
 			expunge(table,test->str);
-		if (!silent)
+		if (!time_only)
 			printf("Total data expunge time: %lf seconds\n\n",read_timer());
 		if (dump)
 			locdump(table);
 	}
-	printf("Seed: %u\n\n",seed);
+	if (!time_only)
+		printf("Seed: %u\n\n",seed);
 	// Clean up
 	for (test=testlist;test;) { // Free test memory
 		test_t *t=test;
