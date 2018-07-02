@@ -4,8 +4,8 @@ my @words=map {10**$_} (0..4);
 my $trials=100;
 print " | Trials/Word: $trials | ";
 print "Size: $_ | " for (@sizes);
-print "\n | --- | ";
-print "--- | " for (@sizes);
+print "\n | :-- | ";
+print "--: | " for (@sizes);
 print "\n";
 for (@words) {
 	my $wordc=$_;
