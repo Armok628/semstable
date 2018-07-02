@@ -14,8 +14,9 @@ Run `./a.out x y z` to make a hash table with x buckets, y entries, and then acc
 Alternatively, you can use something like `./a.out size=x words=y tests=z`, but in any order.
 
 You can also add `--dump` anywhere in the arguments to print out a list of numbers at the end showing how many buckets are in each memory location.
+The same goes for `--silent`, which will result in only printing out the duration.
 
-Only the retrieval phase is timed.
+That said, only the retrieval phase is timed.
 
 Run without (or with insufficient) arguments to manually test it, using the following commands (which mirror their function's name):
 

@@ -40,7 +40,7 @@ int main(int argc,char **argv)
 	if (argc<4)
 		goto NOT_ENOUGH_ARGS;
 	// Scan arguments
-	int tsize=0,words=0,tests=0,dump=0;
+	int tsize=0,words=0,tests=0,dump=0,silent=0;
 	sscanf(argv[1],"%d",&tsize);
 	sscanf(argv[2],"%d",&words);
 	sscanf(argv[3],"%d",&tests);
@@ -48,8 +48,10 @@ int main(int argc,char **argv)
 		sscanf(argv[i],"size=%d",&tsize);
 		sscanf(argv[i],"words=%d",&words);
 		sscanf(argv[i],"tests=%d",&tests);
-		if (!strcmp(argv[i],"--locdump"))
+		if (!strcmp(argv[i],"--dump"))
 			dump=1;
+		if (!strcmp(argv[i],"--silent"))
+			silent=1;
 	}
 	// Initialize table and test variables
 	srand(time(NULL));
@@ -60,9 +62,10 @@ int main(int argc,char **argv)
 	// Build expectations and add table values
 	for (int i=1;i<words;i++) {
 		test_t *t=new_test();
+		if (!silent)
+			printf("Adding %s as %d\n",t->str,t->val);
 		insert(table,t->str,intptr_to(t->val));
-		printf("Adding %s as %i\n",t->str,t->val);
-		//fprintf(stderr,"%s -> %lu\n",t->str,hash_key(t->str));
+		//printf("%s -> %lu\n",test->str,hash_key(test->str));
 		test->cdr=t;
 		test=t;
 	}
@@ -70,7 +73,7 @@ int main(int argc,char **argv)
 	start_timer();
 	int successes=0,failures=0;
 	for (int i=0;i<tests;i++) {
-		//printf("Test iteration: %i\n",i);
+		//printf("Test iteration: %d\n",i);
 		for (test=testlist;test;test=test->cdr) {
 			//printf("Test: Getting entry for %s\n",t->str);
 			int *ptr=(int *)lookup(table,test->str);
@@ -87,10 +90,13 @@ int main(int argc,char **argv)
 		}
 	}
 	// Print report
-	fprintf(stderr,"\nSuccesses: %i\nFailures: %i\n",successes,failures);
-	fprintf(stderr,"\nTotal value retrieval time: %lf seconds\n\n",read_timer());
-	if (dump)
-		locdump(table);
+	if (!silent) {
+		printf("\nSuccesses: %d\nFailures: %d\n",successes,failures);
+		printf("\nTotal value retrieval time: %lf seconds\n\n",read_timer());
+		if (dump)
+			locdump(table);
+	} else
+		printf("%lf\n",read_timer());
 	// Clean up
 	for (test=testlist;test;) { // Free test memory
 		test_t *t=test;
