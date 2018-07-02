@@ -58,9 +58,10 @@ As for storing pointers to multiple types, it's easy enough to implement your ow
 Generated on my PC with bench.pl:
 
  | Trials/Word: 100 | Size: 10 | Size: 100 | Size: 1000 | Size: 10000 | Size: 100000 | 
- | --- | --- | --- | --- | --- | --- | 
- | Words: 1 | 0.078 ms | 0.078 ms | 0.078 ms | 0.078 ms | 0.078 ms | 
- | Words: 10 | 0.795 ms | 0.78 ms | 0.794 ms | 0.799 ms | 0.782 ms | 
- | Words: 100 | 5.686 ms | 2.136 ms | 2.15 ms | 2.033 ms | 2.094 ms | 
- | Words: 1000 | 37.284 ms | 23.339 ms | 20.997 ms | 21.021 ms | 21.465 ms | 
- | Words: 10000 | 5170.585 ms | 740.266 ms | 268.693 ms | 218.672 ms | 215.448 ms | 
+ | --- | --: | --: | --: | --: | --: | 
+ | Words: 1 | 0.083 ms | 0.083 ms | 0.083 ms | 0.083 ms | 0.083 ms | 
+ | Words: 10 | 0.843 ms | 0.812 ms | 0.871 ms | 0.755 ms | 0.760 ms | 
+ | Words: 100 | 5.639 ms | 2.059 ms | 2.063 ms | 2.194 ms | 2.100 ms | 
+ | Words: 1000 | 36.457 ms | 24.259 ms | 21.834 ms | 21.538 ms | 21.688 ms | 
+ | Words: 10000 | 5242.109 ms | 715.941 ms | 264.932 ms | 212.193 ms | 208.782 ms | 
+

@@ -5,7 +5,7 @@ my $trials=100;
 print " | Trials/Word: $trials | ";
 print "Size: $_ | " for (@sizes);
 print "\n | --- | ";
-print "--- | " for (@sizes);
+print "--: | " for (@sizes);
 print "\n";
 for (@words) {
 	my $wordc=$_;
@@ -13,8 +13,7 @@ for (@words) {
 	for (@sizes) {
 		my $size=$_;
 		my $time=`./a.out $size $wordc $trials --silent`;
-		$time*=1000;
-		print "$time ms | ";
+		printf("%.3f ms | ",$time*1000);
 	}
 	print "\n";
 }
