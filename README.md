@@ -18,6 +18,7 @@ Argument    | Action
 `--dump`    | Print out number of buckets in each location after test
 `--silent`  | Print out only retrieval phase duration
 `--expunge` | Manually remove each entry before cleaning up
+`seed=n`    | Manually set the PRNG seed
 
 That said, only the retrieval phase is timed.
 

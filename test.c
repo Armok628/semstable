@@ -13,7 +13,7 @@ typedef struct test_s {
 test_t *new_test()
 {
 	test_t *t=malloc(sizeof(test_t));
-	t->str=random_word(10);
+	t->str=random_word(3+rand()%8);
 	t->val=rand();
 	t->cdr=NULL;
 	return t;
@@ -24,6 +24,14 @@ int *intptr_to(int i)
 	*p=i;
 	return p;
 }
+int find_dup_tests(test_t *list,test_t *test)
+{
+	int i=0;
+	for (;list;list=list->cdr)
+		i+=!strcmp(list->str,test->str);
+	return i-1;
+
+}
 void locdump(table_t *table)
 { // Print number of buckets in each location
 	for (int i=0;i<table->size;i++) {
@@ -33,7 +41,7 @@ void locdump(table_t *table)
 			c++;
 		printf("%d ",c);
 	}
-	puts("");
+	puts("\n");
 }
 int main(int argc,char **argv)
 {
@@ -41,6 +49,7 @@ int main(int argc,char **argv)
 		goto NOT_ENOUGH_ARGS;
 	// Scan arguments
 	int tsize=0,words=0,tests=0,dump=0,silent=0,expunge_data=0;
+	unsigned int seed=time(NULL);
 	sscanf(argv[1],"%d",&tsize);
 	sscanf(argv[2],"%d",&words);
 	sscanf(argv[3],"%d",&tests);
@@ -48,6 +57,7 @@ int main(int argc,char **argv)
 		sscanf(argv[i],"size=%d",&tsize);
 		sscanf(argv[i],"words=%d",&words);
 		sscanf(argv[i],"tests=%d",&tests);
+		sscanf(argv[i],"seed=%u",&seed);
 		if (!strcmp(argv[i],"--dump"))
 			dump=1;
 		if (!strcmp(argv[i],"--silent"))
@@ -56,7 +66,7 @@ int main(int argc,char **argv)
 			expunge_data=1;
 	}
 	// Initialize table and test variables
-	srand(time(NULL));
+	srand(seed);
 	table_t *table=new_table(tsize,&free);
 	test_t *testlist=new_test(); // Make first test
 	test_t *test=testlist;
@@ -73,7 +83,7 @@ int main(int argc,char **argv)
 	}
 	// Test expectations
 	start_timer();
-	int successes=0,failures=0;
+	int successes=0,failures=0,duplicates=0;
 	for (int i=0;i<tests;i++) {
 		//printf("Test iteration: %d\n",i);
 		for (test=testlist;test;test=test->cdr) {
@@ -86,14 +96,18 @@ int main(int argc,char **argv)
 				//printf("Success!\n");
 				successes++;
 			} else {
-				printf("Failure: Wrong value for %s\n",test->str);
-				failures++;
+				int d=find_dup_tests(testlist,test);
+				duplicates+=!!d;
+				if (!d) {
+					printf("Failure: Wrong value for %s\n",test->str);
+					failures++;
+				}
 			}
 		}
 	}
 	// Print report
 	if (!silent) {
-		printf("\nSuccesses: %d\nFailures: %d\n",successes,failures);
+		printf("\nSuccesses: %d\nDuplicates: %d\nFailures: %d\n",successes,duplicates,failures);
 		printf("\nTotal value retrieval time: %lf seconds\n\n",read_timer());
 		if (dump)
 			locdump(table);
@@ -105,10 +119,11 @@ int main(int argc,char **argv)
 		for (test=testlist;test;test=test->cdr)
 			expunge(table,test->str);
 		if (!silent)
-			printf("\nTotal data expunge time: %lf seconds\n\n",read_timer());
+			printf("Total data expunge time: %lf seconds\n\n",read_timer());
 		if (dump)
 			locdump(table);
 	}
+	printf("Seed: %u\n\n",seed);
 	// Clean up
 	for (test=testlist;test;) { // Free test memory
 		test_t *t=test;
