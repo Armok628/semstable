@@ -12,7 +12,7 @@ for (@words) {
 	print " | Words: $wordc | ";
 	for (@sizes) {
 		my $size=$_;
-		my $time=`./a.out $size $wordc $trials --silent`;
+		my $time=`./a.out $size $wordc $trials --time_only`;
 		printf("%.3f ms | ",$time*1000);
 	}
 	print "\n";
