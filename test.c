@@ -24,14 +24,34 @@ int *intptr_to(int i)
 	*p=i;
 	return p;
 }
+void locdump(table_t *table)
+{ // Print number of buckets in each location
+	for (int i=0;i<table->size;i++) {
+		int c=0;
+		bucket_t *b=table->pool[i];
+		for (;b;b=b->cdr)
+			c++;
+		printf("%d ",c);
+	}
+	puts("");
+}
 int main(int argc,char **argv)
 {
 	if (argc<4)
 		goto NOT_ENOUGH_ARGS;
-	int tsize=0,words=0,tests=0;
-	sscanf(argv[1],"%i",&tsize);
-	sscanf(argv[2],"%i",&words);
-	sscanf(argv[3],"%i",&tests);
+	// Scan arguments
+	int tsize=0,words=0,tests=0,dump=0;
+	sscanf(argv[1],"%d",&tsize);
+	sscanf(argv[2],"%d",&words);
+	sscanf(argv[3],"%d",&tests);
+	for (int i=1;i<argc;i++) {
+		sscanf(argv[i],"size=%d",&tsize);
+		sscanf(argv[i],"words=%d",&words);
+		sscanf(argv[i],"tests=%d",&tests);
+		if (!strcmp(argv[i],"--locdump"))
+			dump=1;
+	}
+	// Initialize table and test variables
 	srand(time(NULL));
 	table_t *table=new_table(tsize,&free);
 	test_t *testlist=new_test(); // Make first test
@@ -66,15 +86,19 @@ int main(int argc,char **argv)
 			}
 		}
 	}
+	// Print report
 	fprintf(stderr,"\nSuccesses: %i\nFailures: %i\n",successes,failures);
 	fprintf(stderr,"\nTotal value retrieval time: %lf seconds\n\n",read_timer());
+	if (dump)
+		locdump(table);
+	// Clean up
 	for (test=testlist;test;) { // Free test memory
 		test_t *t=test;
 		free(t->str);
 		test=t->cdr;
 		free(t);
 	}
-	free_table(table); // Free table and entries
+	free_table(table);
 	return 0;
 NOT_ENOUGH_ARGS:
 	table=new_table(128,NULL);
