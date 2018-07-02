@@ -77,17 +77,18 @@ void *lookup(table_t *table,char *str)
 void expunge(table_t *table,char *str)
 {
 	unsigned long key=hash_key(str);
-	bucket_t *p=NULL,*b=table->pool[key%table->size];
+	bucket_t **loc=&table->pool[key%table->size];
+	bucket_t *p=NULL,*b=*loc;
 	while (b&&b->key!=key) { // Look for entry
 		p=b; // Remember previous node
 		b=b->cdr;
 	}
 	if (!b) // Entry not found
 		return;
-	if (!p) // No previous node
-		table->pool[key%table->size]=NULL;
-	else
+	if (p) // Previous node
 		p->cdr=b->cdr;
+	else
+		*loc=b->cdr;
 	if (table->destructor)
 		table->destructor(b->val);
 	free(b);

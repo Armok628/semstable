@@ -40,7 +40,7 @@ int main(int argc,char **argv)
 	if (argc<4)
 		goto NOT_ENOUGH_ARGS;
 	// Scan arguments
-	int tsize=0,words=0,tests=0,dump=0,silent=0;
+	int tsize=0,words=0,tests=0,dump=0,silent=0,expunge_data=0;
 	sscanf(argv[1],"%d",&tsize);
 	sscanf(argv[2],"%d",&words);
 	sscanf(argv[3],"%d",&tests);
@@ -52,6 +52,8 @@ int main(int argc,char **argv)
 			dump=1;
 		if (!strcmp(argv[i],"--silent"))
 			silent=1;
+		if (!strcmp(argv[i],"--expunge"))
+			expunge_data=1;
 	}
 	// Initialize table and test variables
 	srand(time(NULL));
@@ -97,6 +99,16 @@ int main(int argc,char **argv)
 			locdump(table);
 	} else
 		printf("%lf",read_timer());
+	// Manually expunge values if requested
+	if (expunge_data) {
+		start_timer();
+		for (test=testlist;test;test=test->cdr)
+			expunge(table,test->str);
+		if (!silent)
+			printf("\nTotal data expunge time: %lf seconds\n\n",read_timer());
+		if (dump)
+			locdump(table);
+	}
 	// Clean up
 	for (test=testlist;test;) { // Free test memory
 		test_t *t=test;
@@ -130,6 +142,10 @@ NOT_ENOUGH_ARGS:
 				expunge(table,str);
 			} else if (sscanf(input,"hash_key %s",str)==1) {
 				printf("%s -> %lu\n\n",str,hash_key(str));
+			} else if (sscanf(input,"new_table %ld",&num)==1) {
+				printf("Making new table of size %ld\n\n",num);
+				free_table(table);
+				table=new_table(num,NULL);
 			} else
 				printf("Unrecognized command or format\n\n");
 		}
