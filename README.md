@@ -31,8 +31,6 @@ Command       | Action
 `expunge s`   | Destroy data for "s"
 `new_table n` | Make a new table with size "n"
 
-On my machine, the retrieval phase of `./a.out 1000 10000 100` takes 0.3 seconds.
-
 ### Library Usage
 
 I'm writing this mostly as a reminder to myself when I use it later.
@@ -55,7 +53,7 @@ As for storing pointers to multiple types, it's easy enough to implement your ow
 
 ### Performance
 
-Generated on my PC with bench.pl:
+Generated on my PC with the included benchmark script:
 
  | Trials/Word: 100 | Size: 10 | Size: 100 | Size: 1000 | Size: 10000 | Size: 100000 | 
  | --- | --: | --: | --: | --: | --: | 
