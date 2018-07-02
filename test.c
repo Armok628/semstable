@@ -98,7 +98,7 @@ int main(int argc,char **argv)
 		if (dump)
 			locdump(table);
 	} else
-		printf("%lf",read_timer());
+		printf("%lf s",read_timer());
 	// Manually expunge values if requested
 	if (expunge_data) {
 		start_timer();

@@ -13,11 +13,11 @@ Run `./a.out x y z` to make a hash table with x buckets, y entries, and then acc
 
 Alternatively, you can use something like `./a.out size=x words=y tests=z`, as well as any of the following, and in any order.
 
-Argument  | Action
----       | ---
---dump    | Print out number of buckets in each location after test
---silent  | Print out only retrieval phase duration
---expunge | Manually remove each entry before cleaning up
+Argument    | Action
+---         | ---
+`--dump`    | Print out number of buckets in each location after test
+`--silent`  | Print out only retrieval phase duration
+`--expunge` | Manually remove each entry before cleaning up
 
 That said, only the retrieval phase is timed.
 
@@ -55,12 +55,12 @@ As for storing pointers to multiple types, it's easy enough to implement your ow
 
 ### Performance
 
-Generated on my PC with table.pl
+Generated on my PC with bench.pl:
 
  | Trials/Word: 100 | Size: 10 | Size: 100 | Size: 1000 | Size: 10000 | 
  | :-- | --: | --: | --: | --: | 
- | Words: 1 | 0.000052 | 0.000052 | 0.000052 | 0.000052 | 
- | Words: 10 | 0.000547 | 0.000499 | 0.000492 | 0.000492 | 
- | Words: 100 | 0.005163 | 0.004814 | 0.004731 | 0.004472 | 
- | Words: 1000 | 0.071027 | 0.034830 | 0.027958 | 0.043342 | 
- | Words: 10000 | 4.415370 | 0.743896 | 0.351098 | 0.309820 | 
+ | Words: 1 | 0.000075 s | 0.000075 s | 0.000075 s | 0.000075 s | 
+ | Words: 10 | 0.000800 s | 0.000797 s | 0.000785 s | 0.000814 s | 
+ | Words: 100 | 0.005422 s | 0.002025 s | 0.002132 s | 0.002106 s | 
+ | Words: 1000 | 0.039202 s | 0.023471 s | 0.021640 s | 0.021061 s | 
+ | Words: 10000 | 5.195540 s | 0.708518 s | 0.264240 s | 0.210427 s | 
