@@ -5,8 +5,8 @@ unsigned long hash_key(char *str)
 	for (char *c=str;*c;c++) {
 		key+=*c;
 		key*=*c;
-		key<<=8;
-		key/=*c;
+		key<<=1;
+		key-=*c;
 	}
 	return key;
 }
