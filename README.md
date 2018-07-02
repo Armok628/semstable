@@ -13,13 +13,14 @@ Run `./a.out x y z` to make a hash table with x buckets, y entries, and then acc
 
 Alternatively, you can use something like `./a.out size=x words=y tests=z`, as well as any of the following, and in any order.
 
-Argument      | Action
----           | ---
-`--dump`      | Print out number of buckets in each location after test
-`--expunge`   | Manually remove each entry before cleaning up
-`--time_only` | Print out only retrieval phase duration
-`--no_adds`   | Do not report entry additions
-`seed=n`      | Manually set the PRNG seed
+Argument       | Action
+---            | ---
+`--dump`       | Print out number of buckets in each location after test
+`--expunge`    | Manually remove each entry before cleaning up
+`--time_only`  | Print out only retrieval phase duration
+`--no_adds`    | Do not report entry additions
+`--print_keys` | Report hash keys with entry additions
+`seed=n`       | Manually set the PRNG seed
 
 That said, only the retrieval phase is timed.
 

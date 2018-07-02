@@ -50,7 +50,7 @@ int main(int argc,char **argv)
 		goto NOT_ENOUGH_ARGS;
 	// Scan arguments
 	int tsize=0,words=0,tests=0;
-	bool dump=false,time_only=false,m_expunge=false,no_adds=false;
+	bool dump=false,time_only=false,m_expunge=false,no_adds=false,print_keys=false;
 	unsigned int seed=time(NULL);
 	sscanf(argv[1],"%d",&tsize);
 	sscanf(argv[2],"%d",&words);
@@ -68,6 +68,8 @@ int main(int argc,char **argv)
 			m_expunge=true;
 		if (!strcmp(argv[i],"--no_adds"))
 			no_adds=true;
+		if (!strcmp(argv[i],"--print_keys"))
+			print_keys=true;
 	}
 	// Initialize table and test variables
 	srand(seed);
@@ -80,8 +82,9 @@ int main(int argc,char **argv)
 		test_t *t=new_test();
 		if (!time_only&&!no_adds)
 			printf("Adding %s as %d\n",t->str,t->val);
+		if (print_keys)
+			printf("%s -> %lu\n",t->str,hash_key(t->str));
 		insert(table,t->str,intptr_to(t->val));
-		//printf("%s -> %lu\n",test->str,hash_key(test->str));
 		test->cdr=t;
 		test=t;
 	}
