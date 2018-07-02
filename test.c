@@ -96,7 +96,7 @@ int main(int argc,char **argv)
 		if (dump)
 			locdump(table);
 	} else
-		printf("%lf\n",read_timer());
+		printf("%lf",read_timer());
 	// Clean up
 	for (test=testlist;test;) { // Free test memory
 		test_t *t=test;

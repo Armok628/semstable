@@ -48,3 +48,7 @@ The table will not check for null values before destroying.
 For an example of storing `long`s as values instead of malloc'd blocks, see test.c past `NOT_ENOUGH_ARGS`.
 
 As for storing pointers to multiple types, it's easy enough to implement your own variable type system with `enum` and `union`; I won't explain it here.
+
+### Performance
+
+To be added
