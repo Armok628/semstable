@@ -1,8 +1,8 @@
 #!/usr/bin/perl
-my @sizes=map {10**$_} (0..4);
+my @sizes=map {10**$_} (1..4);
 my @words=map {10**$_} (0..4);
-my $trials=50;
-print " | Trials: $trials | ";
+my $trials=100;
+print " | Trials/Word: $trials | ";
 print "Size: $_ | " for (@sizes);
 print "\n | --- | ";
 print "--- | " for (@sizes);
