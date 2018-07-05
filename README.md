@@ -56,13 +56,13 @@ As for storing pointers to multiple types, it's easy enough to implement your ow
 
 ### Performance
 
-Generated on my PC with the included benchmark script:
+Generated on my desktop PC with the included benchmark script:
 
  | Trials/Word: 100 | Size: 10 | Size: 100 | Size: 1000 | Size: 10000 | Size: 100000 | 
  | --- | --: | --: | --: | --: | --: | 
- | Words: 1 | 0.012 ms | 0.012 ms | 0.012 ms | 0.012 ms | 0.012 ms | 
- | Words: 10 | 0.082 ms | 0.081 ms | 0.081 ms | 0.081 ms | 0.081 ms | 
- | Words: 100 | 1.014 ms | 0.811 ms | 0.933 ms | 0.807 ms | 0.792 ms | 
- | Words: 1000 | 42.779 ms | 5.926 ms | 3.899 ms | 2.560 ms | 2.644 ms | 
- | Words: 10000 | 5346.527 ms | 699.635 ms | 164.290 ms | 95.010 ms | 70.087 ms | 
+ | Words: 1 | 0.007 ms | 0.006 ms | 0.006 ms | 0.006 ms | 0.007 ms | 
+ | Words: 10 | 0.071 ms | 0.070 ms | 0.069 ms | 0.073 ms | 0.069 ms | 
+ | Words: 100 | 0.849 ms | 0.719 ms | 0.719 ms | 0.711 ms | 0.685 ms | 
+ | Words: 1000 | 47.851 ms | 15.363 ms | 9.229 ms | 7.741 ms | 7.802 ms | 
+ | Words: 10000 | 4118.628 ms | 603.483 ms | 213.878 ms | 152.475 ms | 87.612 ms | 
 
