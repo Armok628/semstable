@@ -34,11 +34,15 @@ Command       | Action
 `expunge s`   | Destroy data for "s"
 `new_table n` | Make a new table with size "n"
 
+Memory safety is verified through the use of Valgrind.
+
 ### Library Usage
 
-I'm writing this mostly as a reminder to myself when I use it later.
+I'm writing this mostly as a reminder to myself when I use it later, so this section is somewhat simplified.
 
-Values are stored and returned as `void *`, but with typecasting you can store anything of the same width.
+The library itself is contained within src/hash.\*
+
+Values are stored and returned as `void *`. For more type info, see src/hash.h
 
 Function                     | Notes
 ---                          | ---
@@ -52,17 +56,18 @@ The table will not check for null values before destroying.
 
 For an example of storing `long`s as values instead of malloc'd blocks, see test.c past `NOT_ENOUGH_ARGS`.
 
-As for storing pointers to multiple types, it's easy enough to implement your own variable type system with `enum` and `union`; I won't explain it here.
+As for storing pointers to multiple types, it's easy to implement a variable type system with struct, enum, and union, and make a destructor with a switch/case block.
+My LISP dialect uses a similar variable type system.
 
 ### Performance
 
 Generated on my desktop PC with the included benchmark script:
 
- | Trials/Word: 100 | Size: 10 | Size: 100 | Size: 1000 | Size: 10000 | Size: 100000 | 
- | --- | --: | --: | --: | --: | --: | 
- | Words: 1 | 0.007 ms | 0.006 ms | 0.006 ms | 0.006 ms | 0.007 ms | 
- | Words: 10 | 0.071 ms | 0.070 ms | 0.069 ms | 0.073 ms | 0.069 ms | 
- | Words: 100 | 0.849 ms | 0.719 ms | 0.719 ms | 0.711 ms | 0.685 ms | 
- | Words: 1000 | 47.851 ms | 15.363 ms | 9.229 ms | 7.741 ms | 7.802 ms | 
- | Words: 10000 | 4118.628 ms | 603.483 ms | 213.878 ms | 152.475 ms | 87.612 ms | 
+| Trials/Word: 100 | Size: 10 | Size: 100 | Size: 1000 | Size: 10000 | Size: 100000 | 
+| --- | --: | --: | --: | --: | --: | 
+| Words: 1 | 0.007 ms | 0.007 ms | 0.007 ms | 0.007 ms | 0.007 ms | 
+| Words: 10 | 0.078 ms | 0.071 ms | 0.075 ms | 0.076 ms | 0.066 ms | 
+| Words: 100 | 0.750 ms | 0.665 ms | 0.581 ms | 0.580 ms | 0.629 ms | 
+| Words: 1000 | 44.336 ms | 10.355 ms | 8.738 ms | 7.043 ms | 6.283 ms | 
+| Words: 10000 | 4391.766 ms | 590.359 ms | 167.462 ms | 138.469 ms | 79.374 ms | 
 
