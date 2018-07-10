@@ -40,11 +40,11 @@ int main(int argc,char **argv)
 	}
 	fseek(words,0,SEEK_SET);
 	if (progress)
-		printf("\n\x1b[?25l\x1b[s       / %d",count);
+		printf("\n\033[?25l\033[s       / %d",count);
 	start_timer();
 	for (int i=0;fgets(buf,100,words);i++) {
 		if (progress)
-			printf("\x1b[u%6d",i);
+			printf("\033[u%6d",i);
 		chomp(buf);
 		if (strcmp(buf,(s=lookup(dict,buf)))) {
 			printf("Collision: \"%s\" with \"%s\"\n",buf,s);
@@ -52,7 +52,7 @@ int main(int argc,char **argv)
 		}
 	}
 	if (progress)
-		printf("\x1b[?25h\n");
+		printf("\033[?25h\n");
 	printf("\nSuccessfully checked %d/%d words\n",count-failures,count);
 	printf("Collision check phase took %lf seconds\n",read_timer());
 	printf("Lookup table size: %lu bytes\n\n",table_size*sizeof(bucket_t *));
