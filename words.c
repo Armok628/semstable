@@ -27,14 +27,14 @@ int main(int argc,char **argv)
 	while (fgets(buf,100,words)) {
 		chomp(buf);
 		printf("Inserting %s\n",buf);
-		insert(dict,buf,(char *)strdup(buf));
+		insert(dict,buf,strdup(buf));
 		count++;
 	}
 	fseek(words,0,SEEK_SET);
 	start_timer();
 	while (fgets(buf,100,words)) {
 		chomp(buf);
-		if (strcmp(buf,(s=(char *)lookup(dict,buf)))) {
+		if (strcmp(buf,(s=lookup(dict,buf)))) {
 			printf("Collision: '%s' with '%s'\n",buf,s);
 			failures++;
 		}
