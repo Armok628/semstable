@@ -14,7 +14,7 @@ typedef struct test_s {
 test_t *new_test()
 {
 	test_t *t=malloc(sizeof(test_t));
-	t->str=random_word(3+rand()%8);
+	t->str=random_word(10);
 	t->val=rand();
 	t->cdr=NULL;
 	return t;
