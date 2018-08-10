@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+typedef void (*dtor_t)(void *);
 typedef struct bucket_s { // Linked list
 	unsigned long key;
 	void *val;
@@ -11,10 +12,10 @@ typedef struct bucket_s { // Linked list
 typedef struct {
 	int size; // Number of bucket locations
 	bucket_t **pool;
-	void (*destructor)(void *);
+	dtor_t destructor;
 } table_t;
 
-table_t *new_table(int,void (*)(void *));
+table_t *new_table(int,dtor_t);
 void free_table(table_t *);
 void insert(table_t *,char *,void *);
 void *lookup(table_t *,char *);

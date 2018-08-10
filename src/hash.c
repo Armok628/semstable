@@ -18,7 +18,7 @@ bucket_t *new_bucket(unsigned long key,void *val)
 	b->cdr=NULL;
 	return b;
 }
-void free_location(bucket_t *b,void (*d)(void *))
+void free_location(bucket_t *b,dtor_t d)
 {
 	bucket_t *t;
 	while (b) {
@@ -29,7 +29,7 @@ void free_location(bucket_t *b,void (*d)(void *))
 		b=t;
 	}
 }
-table_t *new_table(int size,void (*d)(void *))
+table_t *new_table(int size,dtor_t d)
 {
 	table_t *table=malloc(sizeof(table_t));
 	table->pool=calloc(size,sizeof(bucket_t *));
