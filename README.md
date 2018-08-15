@@ -1,5 +1,5 @@
 # semstable
-A simple implementation of a hash table
+A simple, efficient, and memory-safe hash table
 
 I made this for two reasons
 * I wanted a hash table implementation to use somewhere else.
