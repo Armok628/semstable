@@ -1,4 +1,4 @@
-# simplehashtable
+# semstable
 A simple implementation of a hash table
 
 I made this for two reasons
