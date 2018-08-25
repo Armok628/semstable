@@ -1,11 +1,11 @@
 # semstable
-A simple, efficient, and memory-safe hash table
+A simple, efficient, and memory-safe hash table for use in C
 
-The hash function used is FNV-1a. I came up with my own, but FNV-1a has a better dispersion pattern.
+It is memory-safe in that you can supply a "destructor" (to borrow from OOP terminology) to a hash table
+for use on pointers when they are removed from the table,
+thus removing some of the burden of memory management in an already-complex project.
 
-I made this for two reasons
-* I wanted a hash table implementation to use somewhere else.
-* I wanted to figure out how hash tables work by making one.
+For example, this hash table implementation is used in my garbage-collected LISP dialect, [ISPL](../../../ispl).
 
 ### Test Program Usage
 
@@ -30,7 +30,7 @@ Run without (or with insufficient) arguments to manually test it, using the foll
 
 Command       | Action
 ---           | ---
-`hash_key s`  | Print the hash key of "s"
+`fnv_1a s`    | Print the hash key of "s"
 `insert s n`  | Set "s" to "n", adding the entry if undefined
 `lookup s`    | Get the value of the entry for "s"
 `expunge s`   | Destroy data for "s"
@@ -44,6 +44,8 @@ I'm writing this mostly as a reminder to myself when I use it later, so this sec
 
 The library itself is contained within src/hash.\*
 
+The hash function used is FNV-1a. I had come up with my own initially, but FNV-1a has a better dispersion pattern.
+
 Values are stored and returned as `void *`. For more type info, see src/hash.h
 
 Function                     | Notes
@@ -54,9 +56,9 @@ Function                     | Notes
 `expunge(table,string)`      | If an entry for string is found, destroys its value and removes the entry.
 `free_table(table)`          | Destroys the table's memory and all stored values.
 
-The table will not check for null values before destroying.
+The table will not check for null values before destroying, so make sure your destructor can handle NULL.
 
 For an example of storing `long`s as values instead of malloc'd blocks, see test.c past `NOT_ENOUGH_ARGS`.
 
 As for storing pointers to multiple types, it's easy to implement a variable type system with struct, enum, and union, and make a destructor with a switch/case block.
-My LISP dialect uses a similar variable type system.
+My aforementioned LISP dialect uses a similar system.
