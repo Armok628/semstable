@@ -4,8 +4,8 @@
 #include "src/hash.h"
 #include "src/timer.h"
 #include "src/randword.h"
+#define WORD_SIZE (10+rand()%11)
 typedef enum {false,true} bool;
-unsigned long hash_key(char *); // Not ordinarily accessible outside hash.c
 typedef struct test_s {
 	char *str;
 	int val;
@@ -14,7 +14,7 @@ typedef struct test_s {
 test_t *new_test()
 {
 	test_t *t=malloc(sizeof(test_t));
-	t->str=random_word(10);
+	t->str=random_word(WORD_SIZE);
 	t->val=rand();
 	t->cdr=NULL;
 	return t;
@@ -83,7 +83,7 @@ int main(int argc,char **argv)
 		if (!time_only&&!no_adds)
 			printf("Adding %s as %d\n",t->str,t->val);
 		if (print_keys)
-			printf("%s -> %lu\n",t->str,hash_key(t->str));
+			printf("%s -> %lu\n",t->str,fnv_1a(t->str));
 		insert(table,t->str,intptr_to(t->val));
 		test->cdr=t;
 		test=t;
@@ -115,7 +115,9 @@ int main(int argc,char **argv)
 	// Print report
 	if (!time_only) {
 		printf("\nSuccesses: %d\nDuplicates: %d\nFailures: %d\n",successes,duplicates,failures);
-		printf("\nTotal value retrieval time: %lf seconds\n\n",read_timer());
+		double dur=read_timer();
+		printf("\nTotal value retrieval time: %f seconds\n",dur);
+		printf("\nAverage: %f ms per retrieval\n\n",dur/(words*tests/1000.0));
 	} else
 		printf("%lf",read_timer());
 	if (dump)
@@ -163,8 +165,8 @@ NOT_ENOUGH_ARGS:
 			} else if (sscanf(input,"expunge %s",str)==1) {
 				printf("Expunging %s\n\n",str);
 				expunge(table,str);
-			} else if (sscanf(input,"hash_key %s",str)==1) {
-				printf("%s -> %lu\n\n",str,hash_key(str));
+			} else if (sscanf(input,"fnv_1a %s",str)==1) {
+				printf("%s -> %lu\n\n",str,fnv_1a(str));
 			} else if (sscanf(input,"new_table %ld",&num)==1) {
 				printf("Making new table of size %ld\n\n",num);
 				free_table(table);

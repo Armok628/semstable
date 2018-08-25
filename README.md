@@ -1,6 +1,8 @@
 # semstable
 A simple, efficient, and memory-safe hash table
 
+The hash function used is FNV-1a. I came up with my own, but FNV-1a has a better dispersion pattern.
+
 I made this for two reasons
 * I wanted a hash table implementation to use somewhere else.
 * I wanted to figure out how hash tables work by making one.
@@ -58,16 +60,3 @@ For an example of storing `long`s as values instead of malloc'd blocks, see test
 
 As for storing pointers to multiple types, it's easy to implement a variable type system with struct, enum, and union, and make a destructor with a switch/case block.
 My LISP dialect uses a similar variable type system.
-
-### Performance
-
-Generated on my desktop PC with the included benchmark script:
-
-| Trials/Word: 100 | Size: 10 | Size: 100 | Size: 1000 | Size: 10000 | Size: 100000 | 
-| --- | --: | --: | --: | --: | --: | 
-| Words: 1 | 0.007 ms | 0.007 ms | 0.007 ms | 0.007 ms | 0.007 ms | 
-| Words: 10 | 0.078 ms | 0.071 ms | 0.075 ms | 0.076 ms | 0.066 ms | 
-| Words: 100 | 0.750 ms | 0.665 ms | 0.581 ms | 0.580 ms | 0.629 ms | 
-| Words: 1000 | 44.336 ms | 10.355 ms | 8.738 ms | 7.043 ms | 6.283 ms | 
-| Words: 10000 | 4391.766 ms | 590.359 ms | 167.462 ms | 138.469 ms | 79.374 ms | 
-

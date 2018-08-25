@@ -1,12 +1,24 @@
 #include "hash.h"
-unsigned long hash_key(char *str)
+unsigned long (*hash_function)(char *)=&fnv_1a;
+const unsigned long fnv_prime=0x100000001b3;
+const unsigned long fnv_offset=0xcbf29ce484222325;
+unsigned long fnv_1a(char *str)
 {
-	unsigned long key=0;
-	for (char *c=str;*c;c++) {
-		key+=*c;
-		key*=*c;
-		key<<=1;
-		key-=*c;
+	unsigned long key=fnv_offset;
+	for (char c=*str++;c;c=*str++) {
+		key^=c;
+		key*=fnv_prime;
+	}
+	return key;
+}
+unsigned long nocase_fnv_1a(char *str)
+{
+	unsigned long key=fnv_offset;
+	for (char c=*str++;c;c=*str++) {
+		if ('a'<=c&&c<='z')
+			c+='A'-'a';
+		key^=c;
+		key*=fnv_prime;
 	}
 	return key;
 }
@@ -47,7 +59,7 @@ void free_table(table_t *table)
 }
 void insert(table_t *table,char *str,void *val)
 {
-	unsigned long key=hash_key(str);
+	unsigned long key=hash_function(str);
 	bucket_t *entry=new_bucket(key,val);
 	bucket_t **loc=&table->pool[key%table->size]; // : Bucket location in pool
 	if (*loc) { // Bucket(s) already in location
@@ -66,7 +78,7 @@ void insert(table_t *table,char *str,void *val)
 }
 void *lookup(table_t *table,char *str)
 {
-	unsigned long key=hash_key(str);
+	unsigned long key=hash_function(str);
 	bucket_t *b=table->pool[key%table->size]; // : Bucket in pool
 	while (b&&b->key!=key) // Look for identical bucket or end
 		b=b->cdr;
@@ -76,7 +88,7 @@ void *lookup(table_t *table,char *str)
 }
 void expunge(table_t *table,char *str)
 {
-	unsigned long key=hash_key(str);
+	unsigned long key=hash_function(str);
 	bucket_t **loc=&table->pool[key%table->size];
 	bucket_t *p=NULL,*b=*loc;
 	while (b&&b->key!=key) { // Look for entry
