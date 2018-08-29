@@ -76,8 +76,11 @@ int main(int argc,char **argv)
 	table_t *table=new_table(tsize,&free);
 	test_t *testlist=new_test(); // Make first test
 	test_t *test=testlist;
-	insert(table,test->str,intptr_to(test->val));
 	// Build expectations and add table values
+	start_timer();
+	insert(table,test->str,intptr_to(test->val));
+	if (!time_only&&!no_adds)
+		printf("Adding %s as %d\n",test->str,test->val);
 	for (int i=1;i<words;i++) {
 		test_t *t=new_test();
 		if (!time_only&&!no_adds)
@@ -88,6 +91,7 @@ int main(int argc,char **argv)
 		test->cdr=t;
 		test=t;
 	}
+	printf("\nInsertion phase took %f seconds\n",read_timer());
 	// Test expectations
 	start_timer();
 	int successes=0,failures=0,duplicates=0;
