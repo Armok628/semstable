@@ -148,7 +148,7 @@ int main(int argc,char **argv)
 	free_table(table);
 	return 0;
 NOT_ENOUGH_ARGS:
-	table=new_table(128,NULL);
+	table=new_table(-1,NULL);
 	if (argc<2) {
 		char input[100],str[100];
 		long num;
