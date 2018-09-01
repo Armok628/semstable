@@ -50,7 +50,7 @@ Values are stored and returned as `void *`. For more type info, see src/hash.h
 
 Function                     | Notes
 ---                          | ---
-`new_table(size,destructor)` | "Size" represents number of bucket locations. "Destructor" is a function pointer used to destroy stored values.
+`new_table(size,destructor)` | "Size" represents number of bucket locations. "Destructor" is a function pointer used to destroy stored values. A negative size indicates automatic rehashing.
 `insert(table,string,value)` | Adds an entry for string. If an entry for string is already present, it will destroy the old value and assign the new one.
 `lookup(table,string)`       | Returns the value of the entry for string, or null if no entry is found.
 `expunge(table,string)`      | If an entry for string is found, destroys its value and removes the entry.
