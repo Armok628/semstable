@@ -136,6 +136,9 @@ int main(int argc,char **argv)
 		if (dump)
 			locdump(table);
 	}
+	if (table->rehash) {
+		printf("\nFinal table size: %d buckets\n\n",table->size);
+	}
 	if (!time_only)
 		printf("Seed: %u\n\n",seed);
 	// Clean up
