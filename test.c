@@ -34,8 +34,9 @@ int find_dup_tests(test_t *list,test_t *test)
 
 }
 void locdump(table_t *table)
-{ // Print number of buckets in each location
-	for (int i=0;i<table->size;i++) {
+{ /* Print number of buckets in each location */
+	int i;
+	for (i=0;i<table->size;i++) {
 		int c=0;
 		bucket_t *b=table->pool[i];
 		for (;b;b=b->cdr)
@@ -46,16 +47,19 @@ void locdump(table_t *table)
 }
 int main(int argc,char **argv)
 {
-	if (argc<4)
-		goto NOT_ENOUGH_ARGS;
-	// Scan arguments
-	int tsize=0,words=0,tests=0;
+	/* Scan arguments */
+	int i,tsize=0,words=0,tests=0;
+	int successes=0,failures=0,duplicates=0;
 	bool dump=false,time_only=false,m_expunge=false,no_adds=false,print_keys=false;
 	unsigned int seed=time(NULL);
+	table_t *table;
+	test_t *test,*testlist;
+	if (argc<4)
+		goto NOT_ENOUGH_ARGS;
 	sscanf(argv[1],"%d",&tsize);
 	sscanf(argv[2],"%d",&words);
 	sscanf(argv[3],"%d",&tests);
-	for (int i=1;i<argc;i++) {
+	for (i=1;i<argc;i++) {
 		sscanf(argv[i],"size=%d",&tsize);
 		sscanf(argv[i],"words=%d",&words);
 		sscanf(argv[i],"tests=%d",&tests);
@@ -71,17 +75,17 @@ int main(int argc,char **argv)
 		if (!strcmp(argv[i],"--print_keys"))
 			print_keys=true;
 	}
-	// Initialize table and test variables
+	/* Initialize table and test variables */
 	srand(seed);
-	table_t *table=new_table(tsize,&free);
-	test_t *testlist=new_test(); // Make first test
-	test_t *test=testlist;
-	// Build expectations and add table values
+	table=new_table(tsize,&free);
+	testlist=new_test(); /* Make first test */
+	test=testlist;
+	/* Build expectations and add table values */
 	start_timer();
 	insert(table,test->str,intptr_to(test->val));
 	if (!time_only&&!no_adds)
 		printf("Adding %s as %d\n",test->str,test->val);
-	for (int i=1;i<words;i++) {
+	for (i=1;i<words;i++) {
 		test_t *t=new_test();
 		if (!time_only&&!no_adds)
 			printf("Adding %s as %d\n",t->str,t->val);
@@ -92,19 +96,18 @@ int main(int argc,char **argv)
 		test=t;
 	}
 	printf("\nInsertion phase took %f seconds\n",read_timer());
-	// Test expectations
+	/* Test expectations */
 	start_timer();
-	int successes=0,failures=0,duplicates=0;
-	for (int i=0;i<tests;i++) {
-		//printf("Test iteration: %d\n",i);
+	for (i=0;i<tests;i++) {
+		/*printf("Test iteration: %d\n",i); */
 		for (test=testlist;test;test=test->cdr) {
-			//printf("Test: Getting entry for %s\n",t->str);
+			/*printf("Test: Getting entry for %s\n",t->str); */
 			int *ptr=(int *)lookup(table,test->str);
 			if (!ptr) {
 				printf("Failure: lookup returned null\n");
 				failures++;
 			} else if (*ptr==test->val) {
-				//printf("Success!\n");
+				/*printf("Success!\n"); */
 				successes++;
 			} else {
 				int d=find_dup_tests(testlist,test);
@@ -116,17 +119,17 @@ int main(int argc,char **argv)
 			}
 		}
 	}
-	// Print report
+	/* Print report */
 	if (!time_only) {
-		printf("\nSuccesses: %d\nDuplicates: %d\nFailures: %d\n",successes,duplicates,failures);
 		double dur=read_timer();
+		printf("\nSuccesses: %d\nDuplicates: %d\nFailures: %d\n",successes,duplicates,failures);
 		printf("\nTotal value retrieval time: %f seconds\n",dur);
 		printf("\nAverage: %f ms per retrieval\n\n",dur/(words*tests/1000.0));
 	} else
 		printf("%lf",read_timer());
 	if (dump)
 		locdump(table);
-	// Manually expunge values if requested
+	/* Manually expunge values if requested */
 	if (m_expunge) {
 		start_timer();
 		for (test=testlist;test;test=test->cdr)
@@ -141,8 +144,8 @@ int main(int argc,char **argv)
 	}
 	if (!time_only)
 		printf("Seed: %u\n\n",seed);
-	// Clean up
-	for (test=testlist;test;) { // Free test memory
+	/* Clean up */
+	for (test=testlist;test;) { /* Free test memory */
 		test_t *t=test;
 		free(t->str);
 		test=t->cdr;
