@@ -5,7 +5,6 @@
 #include "src/timer.h"
 #include "src/randword.h"
 #define WORD_SIZE (10+rand()%11)
-typedef enum {false,true} bool;
 typedef struct test_s {
 	char *str;
 	int val;

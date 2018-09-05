@@ -51,7 +51,7 @@ table_t *new_table(int size,dtor_t d)
 	table=calloc(1,sizeof(table_t));
 	if (size<=0) {
 		size=-size;
-		table->rehash=1;
+		table->rehash=true;
 	}
 	table->size=size;
 	table->pool=calloc(size,sizeof(bucket_t *));
