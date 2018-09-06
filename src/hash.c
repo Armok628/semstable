@@ -52,7 +52,7 @@ table_t *new_table(int size,dtor_t d)
 	table_t *table;
 	if (!size)
 		return NULL;
-	table=malloc(sizeof(table_t));
+	table=calloc(1,sizeof(table_t));
 	if (!table) {
 		fputs("new_table: Failed to allocate table memory\n",stderr);
 		exit(1);
