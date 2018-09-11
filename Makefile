@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-g -std=c89 -Wall -pedantic
+CFLAGS=-g -std=c89 -Wall -Wextra -Wpedantic
 
 test: test.c src/*
 	$(CC) test.c src/*.c $(CFLAGS)
