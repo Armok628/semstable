@@ -112,7 +112,7 @@ void *lookup(table_t *table,char *str)
 	bucket_t *b=table->pool[key%table->size]; /* : Bucket in pool */
 	while (b&&b->key!=key) /* Look for identical bucket or end */
 		b=b->cdr;
-	return b?b->val:NULL;
+	return b?b->val:(void *)-1;
 }
 void expunge(table_t *table,char *str)
 {

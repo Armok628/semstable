@@ -52,7 +52,7 @@ Function                     | Notes
 ---                          | ---
 `new_table(size,destructor)` | "Size" represents number of bucket locations. "Destructor" is a function pointer used to destroy stored values. A negative size indicates automatic rehashing.
 `insert(table,string,value)` | Adds an entry for string. If an entry for string is already present, it will destroy the old value and assign the new one.
-`lookup(table,string)`       | Returns the value of the entry for string, or null if no entry is found.
+`lookup(table,string)`       | Returns the value of the entry for string, or (void \*)-1 if no entry is found.
 `expunge(table,string)`      | If an entry for string is found, destroys its value and removes the entry.
 `free_table(table)`          | Destroys the table's memory and all stored values.
 
